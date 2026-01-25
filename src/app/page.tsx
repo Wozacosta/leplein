@@ -15,7 +15,7 @@ export default function Home() {
   const isLocationGranted = status === "granted";
 
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-white">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
         <div className="px-4 py-4 mx-auto max-w-lg md:max-w-2xl lg:max-w-4xl">
