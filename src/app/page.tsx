@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import { LocationPrompt } from "@/components/location/LocationPrompt";
 import { FuelFilter } from "@/components/filters/FuelFilter";
 import { StationList } from "@/components/stations/StationList";
