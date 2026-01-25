@@ -1,6 +1,6 @@
 # Story 2.1: Fuel Type Filter
 
-Status: review
+Status: done
 
 ## Story
 
@@ -247,10 +247,11 @@ None - implementation proceeded without issues.
 |------|--------|
 | 2026-01-25 | Story created with comprehensive context from epics, architecture, project-context, and previous stories |
 | 2026-01-25 | Implementation completed: Added EU picto codes to fuel filter buttons, implemented station filtering by fuel availability, added 11 new tests |
+| 2026-01-25 | Code review completed: Fixed empty state message differentiation, added transition-colors to sort buttons, added beforeEach import to FuelFilter test. Status → done |
 
 ### File List
 
 - `src/components/filters/FuelFilter.tsx` - Modified: Added picto codes to button labels
-- `src/components/stations/StationList.tsx` - Modified: Added fuel availability filtering and updated results count
-- `src/components/filters/__tests__/FuelFilter.test.tsx` - New: 7 unit tests for FuelFilter
-- `src/components/stations/__tests__/StationList.test.tsx` - New: 4 unit tests for filtering logic
+- `src/components/stations/StationList.tsx` - Modified: Added fuel availability filtering, updated results count, differentiated empty state messages, added transition-colors to sort buttons
+- `src/components/filters/__tests__/FuelFilter.test.tsx` - New: 7 unit tests for FuelFilter, added explicit beforeEach import
+- `src/components/stations/__tests__/StationList.test.tsx` - Modified: 10 unit tests (4 filtering + 6 sorting)

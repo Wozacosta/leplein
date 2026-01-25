@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { StationList } from "../StationList";
@@ -28,6 +28,7 @@ function createMockStation(
     available: boolean;
     price?: number;
   }>,
+  distance?: number,
 ): Station {
   return {
     id,
@@ -50,7 +51,10 @@ function createMockStation(
       available: f.available,
       Price: f.price ? { value: f.price, text: `${f.price} €/L` } : undefined,
     })),
-    Distance: { value: 1000, text: "1 km" },
+    Distance:
+      distance !== undefined
+        ? { value: distance, text: `${distance / 1000} km` }
+        : undefined,
   };
 }
 
@@ -179,10 +183,219 @@ describe("StationList", () => {
       // Select E85 (id: 3)
       render(<StationList selectedFuelId={3} />);
 
-      // Should show empty state
+      // Should show filtered empty state message
       expect(
-        screen.getByText("Aucune station trouvée à proximité"),
+        screen.getByText("Aucune station avec ce carburant à proximité"),
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("sorting by price", () => {
+    const stationsWithDifferentPrices: Station[] = [
+      createMockStation(
+        1,
+        "Expensive Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.95 }],
+        500,
+      ),
+      createMockStation(
+        2,
+        "Cheapest Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.72 }],
+        2000,
+      ),
+      createMockStation(
+        3,
+        "Medium Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.85 }],
+        1000,
+      ),
+    ];
+
+    beforeEach(() => {
+      mockUseGeolocation.mockReturnValue({
+        coordinates: { lat: 48.8566, lng: 2.3522 },
+        status: "granted",
+        error: null,
+        requestPermission: vi.fn(),
+      });
+    });
+
+    it("sorts stations by price (cheapest first) by default", () => {
+      mockUseStations.mockReturnValue({
+        data: stationsWithDifferentPrices,
+        error: undefined,
+        isLoading: false,
+        mutate: vi.fn(),
+        isValidating: false,
+      });
+
+      render(<StationList selectedFuelId={1} />);
+
+      // Get all station cards by their names
+      const addresses = screen.getAllByText(
+        /(Expensive|Cheapest|Medium) Station/,
+      );
+
+      // First should be cheapest (1.72), then medium (1.85), then expensive (1.95)
+      expect(addresses[0]).toHaveTextContent("Cheapest Station");
+      expect(addresses[1]).toHaveTextContent("Medium Station");
+      expect(addresses[2]).toHaveTextContent("Expensive Station");
+    });
+
+    it("has 'Moins cher' button active by default", () => {
+      mockUseStations.mockReturnValue({
+        data: stationsWithDifferentPrices,
+        error: undefined,
+        isLoading: false,
+        mutate: vi.fn(),
+        isValidating: false,
+      });
+
+      render(<StationList selectedFuelId={1} />);
+
+      const priceButton = screen.getByText("Moins cher");
+      expect(priceButton).toHaveClass("bg-blue-600", "text-white");
+    });
+
+    it("sorts out-of-stock stations to the bottom", () => {
+      const stationsWithOutOfStock: Station[] = [
+        createMockStation(
+          1,
+          "Out of Stock Station",
+          [
+            { id: 1, shortName: "Gazole", available: false, price: 1.5 }, // Cheapest but out of stock
+          ],
+          500,
+        ),
+        createMockStation(
+          2,
+          "Available Station",
+          [{ id: 1, shortName: "Gazole", available: true, price: 1.9 }],
+          1000,
+        ),
+      ];
+
+      mockUseStations.mockReturnValue({
+        data: stationsWithOutOfStock,
+        error: undefined,
+        isLoading: false,
+        mutate: vi.fn(),
+        isValidating: false,
+      });
+
+      // When filtering by Gazole, only "Available Station" should show
+      // because out-of-stock stations are filtered out
+      render(<StationList selectedFuelId={1} />);
+
+      expect(screen.getByText("Available Station")).toBeInTheDocument();
+      expect(
+        screen.queryByText("Out of Stock Station"),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  describe("sorting by distance", () => {
+    const stationsWithDifferentDistances: Station[] = [
+      createMockStation(
+        1,
+        "Far Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.72 }],
+        5000,
+      ), // 5km - cheapest but far
+      createMockStation(
+        2,
+        "Near Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.95 }],
+        500,
+      ), // 0.5km - closest
+      createMockStation(
+        3,
+        "Medium Distance Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.85 }],
+        2000,
+      ), // 2km
+    ];
+
+    beforeEach(() => {
+      mockUseGeolocation.mockReturnValue({
+        coordinates: { lat: 48.8566, lng: 2.3522 },
+        status: "granted",
+        error: null,
+        requestPermission: vi.fn(),
+      });
+    });
+
+    it("sorts stations by distance (nearest first) when distance sort is selected", () => {
+      mockUseStations.mockReturnValue({
+        data: stationsWithDifferentDistances,
+        error: undefined,
+        isLoading: false,
+        mutate: vi.fn(),
+        isValidating: false,
+      });
+
+      render(<StationList selectedFuelId={1} />);
+
+      // Click the distance sort button
+      const distanceButton = screen.getByText("Plus proche");
+      fireEvent.click(distanceButton);
+
+      // Get station names in order
+      const addresses = screen.getAllByText(
+        /(Far|Near|Medium Distance) Station/,
+      );
+
+      // Should be sorted by distance: Near (500m), Medium (2km), Far (5km)
+      expect(addresses[0]).toHaveTextContent("Near Station");
+      expect(addresses[1]).toHaveTextContent("Medium Distance Station");
+      expect(addresses[2]).toHaveTextContent("Far Station");
+    });
+
+    it("activates 'Plus proche' button when clicked", () => {
+      mockUseStations.mockReturnValue({
+        data: stationsWithDifferentDistances,
+        error: undefined,
+        isLoading: false,
+        mutate: vi.fn(),
+        isValidating: false,
+      });
+
+      render(<StationList selectedFuelId={1} />);
+
+      const distanceButton = screen.getByText("Plus proche");
+      fireEvent.click(distanceButton);
+
+      expect(distanceButton).toHaveClass("bg-blue-600", "text-white");
+
+      const priceButton = screen.getByText("Moins cher");
+      expect(priceButton).not.toHaveClass("bg-blue-600");
+    });
+
+    it("can toggle between price and distance sorting", () => {
+      mockUseStations.mockReturnValue({
+        data: stationsWithDifferentDistances,
+        error: undefined,
+        isLoading: false,
+        mutate: vi.fn(),
+        isValidating: false,
+      });
+
+      render(<StationList selectedFuelId={1} />);
+
+      // Initially sorted by price - cheapest first
+      let addresses = screen.getAllByText(/(Far|Near|Medium Distance) Station/);
+      expect(addresses[0]).toHaveTextContent("Far Station"); // Cheapest at 1.72
+
+      // Switch to distance
+      fireEvent.click(screen.getByText("Plus proche"));
+      addresses = screen.getAllByText(/(Far|Near|Medium Distance) Station/);
+      expect(addresses[0]).toHaveTextContent("Near Station"); // Closest at 500m
+
+      // Switch back to price
+      fireEvent.click(screen.getByText("Moins cher"));
+      addresses = screen.getAllByText(/(Far|Near|Medium Distance) Station/);
+      expect(addresses[0]).toHaveTextContent("Far Station"); // Cheapest again
     });
   });
 });

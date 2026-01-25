@@ -93,7 +93,9 @@ export function StationList({ selectedFuelId }: StationListProps) {
   if (filteredAndSortedStations.length === 0) {
     return (
       <div className="p-6 text-center text-gray-500">
-        Aucune station trouvée à proximité
+        {selectedFuelId !== undefined
+          ? "Aucune station avec ce carburant à proximité"
+          : "Aucune station trouvée à proximité"}
       </div>
     );
   }
@@ -105,7 +107,7 @@ export function StationList({ selectedFuelId }: StationListProps) {
         <button
           type="button"
           onClick={() => setSortOrder("price")}
-          className={`flex items-center justify-center px-4 min-h-[44px] text-sm font-medium rounded-lg ${
+          className={`flex items-center justify-center px-4 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
             sortOrder === "price"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -116,7 +118,7 @@ export function StationList({ selectedFuelId }: StationListProps) {
         <button
           type="button"
           onClick={() => setSortOrder("distance")}
-          className={`flex items-center justify-center px-4 min-h-[44px] text-sm font-medium rounded-lg ${
+          className={`flex items-center justify-center px-4 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
             sortOrder === "distance"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"

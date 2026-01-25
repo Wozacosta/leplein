@@ -50,8 +50,8 @@ development_status:
 
   # Epic 2: Fuel Filtering & Sorting
   epic-2: in-progress
-  2-1-fuel-type-filter: review
-  2-2-sort-by-price-or-distance: backlog
+  2-1-fuel-type-filter: done
+  2-2-sort-by-price-or-distance: done
   2-3-persistent-default-fuel-type: backlog
   epic-2-retrospective: optional
 
