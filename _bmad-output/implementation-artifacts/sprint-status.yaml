@@ -58,7 +58,7 @@ development_status:
   # Epic 3: Data Transparency & Quality Indicators
   epic-3: in-progress
   3-1-location-context-display: done
-  3-2-price-update-timestamps: backlog
+  3-2-price-update-timestamps: done
   3-3-stale-data-visual-indicator: backlog
   3-4-out-of-stock-rupture-indicator: backlog
   epic-3-retrospective: optional
