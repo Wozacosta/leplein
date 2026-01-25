@@ -43,7 +43,7 @@ development_status:
   # Epic 1: Project Foundation & Core Station Discovery
   epic-1: in-progress
   1-1-project-initialization: done
-  1-2-geolocation-context-permission-flow: ready-for-dev
+  1-2-geolocation-context-permission-flow: done
   1-3-station-api-integration-swr-hook: backlog
   1-4-station-list-ui-with-prices: backlog
   epic-1-retrospective: optional

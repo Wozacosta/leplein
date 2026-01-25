@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import { formatDistance } from "@/lib/formatDistance";
 import { FuelPriceRow } from "./FuelPriceRow";
 
@@ -9,6 +13,10 @@ interface StationCardProps {
 }
 
 export function StationCard({ station, selectedFuelId }: StationCardProps) {
+  const [copyFeedback, setCopyFeedback] = useState<
+    "idle" | "success" | "error"
+  >("idle");
+
   const selectedFuel = selectedFuelId
     ? station.Fuels.find((f) => f.id === selectedFuelId)
     : station.Fuels[0];
@@ -25,7 +33,14 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
 
   const handleCopyAddress = async () => {
     const address = `${station.Address.street_line}, ${station.Address.city_line}`;
-    await navigator.clipboard.writeText(address);
+    try {
+      await navigator.clipboard.writeText(address);
+      setCopyFeedback("success");
+      setTimeout(() => setCopyFeedback("idle"), 2000);
+    } catch {
+      setCopyFeedback("error");
+      setTimeout(() => setCopyFeedback("idle"), 2000);
+    }
   };
 
   return (
@@ -68,6 +83,7 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
       {/* Actions */}
       <div className="flex gap-2 mt-4">
         <button
+          type="button"
           onClick={handleOpenMaps}
           className="flex items-center justify-center flex-1 gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
         >
@@ -76,6 +92,7 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -93,23 +110,76 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
           Y aller
         </button>
         <button
+          type="button"
           onClick={handleCopyAddress}
-          className="flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200"
-          title="Copier l'adresse"
+          className={`flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+            copyFeedback === "success"
+              ? "bg-green-100 text-green-700"
+              : copyFeedback === "error"
+                ? "bg-red-100 text-red-700"
+                : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+          }`}
+          title={
+            copyFeedback === "success"
+              ? "Adresse copiée !"
+              : copyFeedback === "error"
+                ? "Erreur de copie"
+                : "Copier l'adresse"
+          }
+          aria-label={
+            copyFeedback === "success"
+              ? "Adresse copiée"
+              : copyFeedback === "error"
+                ? "Erreur lors de la copie"
+                : "Copier l'adresse"
+          }
         >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
-            />
-          </svg>
+          {copyFeedback === "success" ? (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          ) : copyFeedback === "error" ? (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
+            </svg>
+          )}
         </button>
       </div>
     </div>
