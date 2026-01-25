@@ -41,23 +41,23 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # Epic 1: Project Foundation & Core Station Discovery
-  epic-1: in-progress
+  epic-1: done
   1-1-project-initialization: done
   1-2-geolocation-context-permission-flow: done
   1-3-station-api-integration-swr-hook: done
   1-4-station-list-ui-with-prices: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
 
   # Epic 2: Fuel Filtering & Sorting
   epic-2: done
   2-1-fuel-type-filter: done
   2-2-sort-by-price-or-distance: done
   2-3-persistent-default-fuel-type: done
-  epic-2-retrospective: optional
+  epic-2-retrospective: done
 
   # Epic 3: Data Transparency & Quality Indicators
-  epic-3: backlog
-  3-1-location-context-display: backlog
+  epic-3: in-progress
+  3-1-location-context-display: done
   3-2-price-update-timestamps: backlog
   3-3-stale-data-visual-indicator: backlog
   3-4-out-of-stock-rupture-indicator: backlog

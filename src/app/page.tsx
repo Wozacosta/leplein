@@ -1,13 +1,14 @@
 "use client";
 
 import { LocationPrompt } from "@/components/location/LocationPrompt";
+import { LocationStatus } from "@/components/location/LocationStatus";
 import { FuelFilter } from "@/components/filters/FuelFilter";
 import { StationList } from "@/components/stations/StationList";
 import { useGeolocation } from "@/contexts/GeolocationContext";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 export default function Home() {
-  const { status } = useGeolocation();
+  const { status, coordinates } = useGeolocation();
   const [selectedFuelId, setSelectedFuelId] = useLocalStorage<
     number | undefined
   >("lepleink-fuel", undefined);
@@ -23,6 +24,9 @@ export default function Home() {
           <p className="text-sm text-gray-500">
             Carburant moins cher près de vous
           </p>
+          {coordinates && (
+            <LocationStatus lat={coordinates.lat} lng={coordinates.lng} />
+          )}
         </div>
       </header>
 
