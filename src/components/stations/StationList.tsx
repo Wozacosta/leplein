@@ -26,10 +26,20 @@ export function StationList({ selectedFuelId }: StationListProps) {
   } = useStations(coordinates?.lat ?? null, coordinates?.lng ?? null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("price");
 
-  const sortedStations = useMemo(() => {
+  const filteredAndSortedStations = useMemo(() => {
     if (!stations) return [];
 
-    return [...stations].sort((a, b) => {
+    // Step 1: Filter by fuel availability (when a specific fuel is selected)
+    let filtered = stations;
+    if (selectedFuelId !== undefined) {
+      filtered = stations.filter((station) => {
+        const fuel = station.Fuels.find((f) => f.id === selectedFuelId);
+        return fuel && fuel.available;
+      });
+    }
+
+    // Step 2: Sort
+    return [...filtered].sort((a, b) => {
       if (sortOrder === "distance") {
         // Handle optional Distance field
         const distA = a.Distance?.value ?? Infinity;
@@ -80,6 +90,14 @@ export function StationList({ selectedFuelId }: StationListProps) {
     );
   }
 
+  if (filteredAndSortedStations.length === 0) {
+    return (
+      <div className="p-6 text-center text-gray-500">
+        Aucune station trouvée à proximité
+      </div>
+    );
+  }
+
   return (
     <div>
       {/* Sort controls */}
@@ -110,7 +128,7 @@ export function StationList({ selectedFuelId }: StationListProps) {
 
       {/* Station list */}
       <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
-        {sortedStations.map((station) => (
+        {filteredAndSortedStations.map((station) => (
           <StationCard
             key={station.id}
             station={station}
@@ -121,8 +139,9 @@ export function StationList({ selectedFuelId }: StationListProps) {
 
       {/* Results count */}
       <p className="mt-4 text-sm text-center text-gray-500">
-        {stations.length} station{stations.length > 1 ? "s" : ""} trouvée
-        {stations.length > 1 ? "s" : ""}
+        {filteredAndSortedStations.length} station
+        {filteredAndSortedStations.length > 1 ? "s" : ""} trouvée
+        {filteredAndSortedStations.length > 1 ? "s" : ""}
       </p>
     </div>
   );
