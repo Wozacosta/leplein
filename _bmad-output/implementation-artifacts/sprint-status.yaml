@@ -49,10 +49,10 @@ development_status:
   epic-1-retrospective: optional
 
   # Epic 2: Fuel Filtering & Sorting
-  epic-2: in-progress
+  epic-2: done
   2-1-fuel-type-filter: done
   2-2-sort-by-price-or-distance: done
-  2-3-persistent-default-fuel-type: backlog
+  2-3-persistent-default-fuel-type: done
   epic-2-retrospective: optional
 
   # Epic 3: Data Transparency & Quality Indicators

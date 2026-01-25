@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 import { StationCard } from "./StationCard";
 import { StationListSkeleton } from "./StationListSkeleton";
 import { ErrorMessage } from "@/components/ui/ErrorMessage";
 import { useGeolocation } from "@/contexts/GeolocationContext";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useStations } from "@/hooks/useStations";
 
 import type { Station } from "@/types/station";
@@ -24,7 +25,10 @@ export function StationList({ selectedFuelId }: StationListProps) {
     isLoading,
     mutate,
   } = useStations(coordinates?.lat ?? null, coordinates?.lng ?? null);
-  const [sortOrder, setSortOrder] = useState<SortOrder>("price");
+  const [sortOrder, setSortOrder] = useLocalStorage<SortOrder>(
+    "lepleink-sort",
+    "price",
+  );
 
   const filteredAndSortedStations = useMemo(() => {
     if (!stations) return [];

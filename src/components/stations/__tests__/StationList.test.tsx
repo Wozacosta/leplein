@@ -15,6 +15,16 @@ vi.mock("@/hooks/useStations", () => ({
   useStations: vi.fn(),
 }));
 
+// Mock useLocalStorage to use simple useState for tests
+vi.mock("@/hooks/useLocalStorage", async () => {
+  const React = await import("react");
+  return {
+    useLocalStorage: (key: string, initialValue: unknown) => {
+      return React.useState(initialValue);
+    },
+  };
+});
+
 const mockUseGeolocation = vi.mocked(useGeolocation);
 const mockUseStations = vi.mocked(useStations);
 
