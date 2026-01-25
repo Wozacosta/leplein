@@ -49,7 +49,7 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-gray-900">
-              {station.Brand?.short_name || station.name}
+              {station.Brand?.shortName || station.Brand?.name || station.name}
             </h3>
             {station.type === "A" && (
               <span className="px-2 py-0.5 text-xs font-medium text-blue-700 bg-blue-100 rounded">
@@ -62,11 +62,13 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
           </p>
           <p className="text-sm text-gray-500">{station.Address.city_line}</p>
         </div>
-        <div className="text-right">
-          <span className="text-sm font-medium text-gray-600">
-            {formatDistance(station.Distance.value)}
-          </span>
-        </div>
+        {station.Distance && (
+          <div className="text-right">
+            <span className="text-sm font-medium text-gray-600">
+              {formatDistance(station.Distance.value)}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Fuel prices */}

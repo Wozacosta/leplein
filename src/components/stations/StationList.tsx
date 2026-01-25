@@ -31,7 +31,10 @@ export function StationList({ selectedFuelId }: StationListProps) {
 
     return [...stations].sort((a, b) => {
       if (sortOrder === "distance") {
-        return a.Distance.value - b.Distance.value;
+        // Handle optional Distance field
+        const distA = a.Distance?.value ?? Infinity;
+        const distB = b.Distance?.value ?? Infinity;
+        return distA - distB;
       }
 
       // Sort by price of selected fuel (or first available fuel)
@@ -39,7 +42,9 @@ export function StationList({ selectedFuelId }: StationListProps) {
         const fuel = selectedFuelId
           ? station.Fuels.find((f) => f.id === selectedFuelId)
           : station.Fuels[0];
-        return fuel?.rupture ? Infinity : (fuel?.Price.value ?? Infinity);
+        // Use !available instead of rupture (API uses available: true/false)
+        const isOutOfStock = fuel ? !fuel.available : true;
+        return isOutOfStock ? Infinity : (fuel?.Price?.value ?? Infinity);
       };
 
       return getFuelPrice(a) - getFuelPrice(b);

@@ -44,8 +44,8 @@ development_status:
   epic-1: in-progress
   1-1-project-initialization: done
   1-2-geolocation-context-permission-flow: done
-  1-3-station-api-integration-swr-hook: backlog
-  1-4-station-list-ui-with-prices: backlog
+  1-3-station-api-integration-swr-hook: done
+  1-4-station-list-ui-with-prices: ready-for-dev
   epic-1-retrospective: optional
 
   # Epic 2: Fuel Filtering & Sorting
@@ -75,3 +75,9 @@ development_status:
   5-1-manual-location-search: backlog
   5-2-api-error-handling-graceful-degradation: backlog
   epic-5-retrospective: optional
+
+# Ideas
+#
+#Cache as much as possible-
+#use reactquery, 12 hours ttl
+#cache api calls in the backend? (for some routes maybe?)
