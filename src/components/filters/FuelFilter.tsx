@@ -13,7 +13,7 @@ export function FuelFilter({ selectedFuelId, onFuelChange }: FuelFilterProps) {
       <button
         type="button"
         onClick={() => onFuelChange(undefined)}
-        className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+        className={`flex items-center justify-center px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
           selectedFuelId === undefined
             ? "bg-blue-600 text-white"
             : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -26,7 +26,7 @@ export function FuelFilter({ selectedFuelId, onFuelChange }: FuelFilterProps) {
           type="button"
           key={fuel.id}
           onClick={() => onFuelChange(fuel.id)}
-          className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+          className={`flex items-center justify-center px-3 min-h-[44px] text-sm font-medium rounded-lg transition-colors ${
             selectedFuelId === fuel.id
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"

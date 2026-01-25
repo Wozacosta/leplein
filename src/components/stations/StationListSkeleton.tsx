@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/Skeleton';
+import { Skeleton } from "@/components/ui/Skeleton";
 
 interface StationListSkeletonProps {
   count?: number;
@@ -6,7 +6,7 @@ interface StationListSkeletonProps {
 
 export function StationListSkeleton({ count = 3 }: StationListSkeletonProps) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
       {Array.from({ length: count }).map((_, i) => (
         <div key={i} className="p-4 bg-white border border-gray-200 rounded-lg">
           <div className="flex items-start justify-between">
@@ -22,8 +22,8 @@ export function StationListSkeleton({ count = 3 }: StationListSkeletonProps) {
             <Skeleton className="w-full h-6" />
           </div>
           <div className="flex gap-2 mt-4">
-            <Skeleton className="flex-1 h-10" />
-            <Skeleton className="w-10 h-10" />
+            <Skeleton className="flex-1 h-[44px]" />
+            <Skeleton className="w-[44px] h-[44px]" />
           </div>
         </div>
       ))}

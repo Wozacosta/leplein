@@ -87,7 +87,7 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
         <button
           type="button"
           onClick={handleOpenMaps}
-          className="flex items-center justify-center flex-1 gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+          className="flex items-center justify-center flex-1 gap-2 px-3 min-h-[44px] text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
         >
           <svg
             className="w-4 h-4"
@@ -114,7 +114,7 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
         <button
           type="button"
           onClick={handleCopyAddress}
-          className={`flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+          className={`flex items-center justify-center px-3 min-h-[44px] min-w-[44px] text-sm font-medium rounded-lg transition-colors ${
             copyFeedback === "success"
               ? "bg-green-100 text-green-700"
               : copyFeedback === "error"

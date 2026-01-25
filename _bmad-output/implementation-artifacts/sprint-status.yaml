@@ -45,12 +45,12 @@ development_status:
   1-1-project-initialization: done
   1-2-geolocation-context-permission-flow: done
   1-3-station-api-integration-swr-hook: done
-  1-4-station-list-ui-with-prices: ready-for-dev
+  1-4-station-list-ui-with-prices: done
   epic-1-retrospective: optional
 
   # Epic 2: Fuel Filtering & Sorting
-  epic-2: backlog
-  2-1-fuel-type-filter: backlog
+  epic-2: in-progress
+  2-1-fuel-type-filter: ready-for-dev
   2-2-sort-by-price-or-distance: backlog
   2-3-persistent-default-fuel-type: backlog
   epic-2-retrospective: optional

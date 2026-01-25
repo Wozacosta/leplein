@@ -87,7 +87,7 @@ export function StationList({ selectedFuelId }: StationListProps) {
         <button
           type="button"
           onClick={() => setSortOrder("price")}
-          className={`px-3 py-1.5 text-sm font-medium rounded-lg ${
+          className={`flex items-center justify-center px-4 min-h-[44px] text-sm font-medium rounded-lg ${
             sortOrder === "price"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -98,7 +98,7 @@ export function StationList({ selectedFuelId }: StationListProps) {
         <button
           type="button"
           onClick={() => setSortOrder("distance")}
-          className={`px-3 py-1.5 text-sm font-medium rounded-lg ${
+          className={`flex items-center justify-center px-4 min-h-[44px] text-sm font-medium rounded-lg ${
             sortOrder === "distance"
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -109,7 +109,7 @@ export function StationList({ selectedFuelId }: StationListProps) {
       </div>
 
       {/* Station list */}
-      <div className="space-y-4">
+      <div className="space-y-4 lg:grid lg:grid-cols-2 lg:gap-4 lg:space-y-0">
         {sortedStations.map((station) => (
           <StationCard
             key={station.id}

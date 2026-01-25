@@ -18,7 +18,7 @@ export default function Home() {
     <main className="min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-white border-b border-gray-200">
-        <div className="px-4 py-4 mx-auto max-w-lg">
+        <div className="px-4 py-4 mx-auto max-w-lg md:max-w-2xl lg:max-w-4xl">
           <h1 className="text-xl font-bold text-gray-900">lepleink</h1>
           <p className="text-sm text-gray-500">
             Carburant moins cher près de vous
@@ -27,7 +27,7 @@ export default function Home() {
       </header>
 
       {/* Content */}
-      <div className="px-4 py-4 mx-auto max-w-lg">
+      <div className="px-4 py-4 mx-auto max-w-lg md:max-w-2xl lg:max-w-4xl">
         {!isLocationGranted ? (
           <LocationPrompt />
         ) : (
