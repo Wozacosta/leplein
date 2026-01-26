@@ -16,6 +16,17 @@ const mockGeocodeResponse = {
   },
 };
 
+// Default mock values
+const mockGeolocationValues = {
+  locationSource: "gps" as const,
+  locationLabel: null as string | null,
+};
+
+// Mock useGeolocation with mutable values
+vi.mock("@/contexts/GeolocationContext", () => ({
+  useGeolocation: () => mockGeolocationValues,
+}));
+
 // SWR wrapper to prevent cache between tests
 function createWrapper() {
   return function Wrapper({ children }: { children: ReactNode }) {
@@ -30,6 +41,9 @@ function createWrapper() {
 describe("LocationStatus", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    // Reset to default GPS values
+    mockGeolocationValues.locationSource = "gps";
+    mockGeolocationValues.locationLabel = null;
   });
 
   afterEach(() => {
@@ -144,5 +158,38 @@ describe("LocationStatus", () => {
     });
 
     expect(await screen.findByText("Position actuelle")).toBeInTheDocument();
+  });
+
+  it("displays manual location label when locationSource is manual", () => {
+    // Set up manual location mock
+    mockGeolocationValues.locationSource = "manual";
+    mockGeolocationValues.locationLabel = "Paris, 75001";
+
+    render(<LocationStatus lat={48.8566} lng={2.3522} />, {
+      wrapper: createWrapper(),
+    });
+
+    // Should display the manual label directly, not reverse geocode
+    expect(screen.getByText("Paris, 75001")).toBeInTheDocument();
+  });
+
+  it("falls back to reverse geocoding when manual source has no label", async () => {
+    // Manual source but no label - should fall back to API
+    mockGeolocationValues.locationSource = "manual";
+    mockGeolocationValues.locationLabel = null;
+
+    global.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockGeocodeResponse),
+      }),
+    );
+
+    render(<LocationStatus lat={48.7833} lng={2.4167} />, {
+      wrapper: createWrapper(),
+    });
+
+    // Should still use reverse geocoding
+    expect(await screen.findByText(/Près de Créteil/)).toBeInTheDocument();
   });
 });

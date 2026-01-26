@@ -59,7 +59,7 @@ development_status:
   epic-3: in-progress
   3-1-location-context-display: done
   3-2-price-update-timestamps: done
-  3-3-stale-data-visual-indicator: backlog
+  3-3-stale-data-visual-indicator: done
   3-4-out-of-stock-rupture-indicator: backlog
   epic-3-retrospective: optional
 
@@ -71,8 +71,8 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: Fallback & Resilience
-  epic-5: backlog
-  5-1-manual-location-search: backlog
+  epic-5: in-progress
+  5-1-manual-location-search: done
   5-2-api-error-handling-graceful-degradation: backlog
   epic-5-retrospective: optional
 

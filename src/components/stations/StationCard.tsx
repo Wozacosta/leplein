@@ -3,7 +3,9 @@
 import { useState } from "react";
 
 import { formatDistance } from "@/lib/formatDistance";
+import { isStale } from "@/lib/isStale";
 import { FuelPriceRow } from "./FuelPriceRow";
+import { StaleIndicator } from "@/components/ui/StaleIndicator";
 
 import type { Station } from "@/types/station";
 
@@ -20,6 +22,9 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
   const selectedFuel = selectedFuelId
     ? station.Fuels.find((f) => f.id === selectedFuelId)
     : station.Fuels[0];
+
+  // Station is stale if any of its fuels have stale data
+  const hasStaleData = station.Fuels.some((fuel) => isStale(fuel.Update.value));
 
   const handleOpenMaps = () => {
     const address = encodeURIComponent(
@@ -56,6 +61,7 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
                 Autoroute
               </span>
             )}
+            {hasStaleData && <StaleIndicator />}
           </div>
           <p className="mt-1 text-sm text-gray-500">
             {station.Address.street_line}

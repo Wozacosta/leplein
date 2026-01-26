@@ -1,6 +1,7 @@
 "use client";
 
 import { useGeolocation } from "@/contexts/GeolocationContext";
+import { LocationSearch } from "./LocationSearch";
 
 export function LocationPrompt() {
   const { status, error, requestPermission } = useGeolocation();
@@ -53,6 +54,11 @@ export function LocationPrompt() {
           {error ||
             "Votre navigateur ne supporte pas la géolocalisation. Veuillez utiliser un navigateur plus récent."}
         </p>
+
+        {/* Manual search fallback */}
+        <div className="pt-6 mt-6 border-t border-gray-200">
+          <LocationSearch />
+        </div>
       </div>
     );
   }
@@ -108,6 +114,11 @@ export function LocationPrompt() {
           votre navigateur
         </p>
       )}
+
+      {/* Manual search fallback */}
+      <div className="flex flex-col items-center pt-6 mt-6 border-t border-gray-200">
+        <LocationSearch />
+      </div>
     </div>
   );
 }
