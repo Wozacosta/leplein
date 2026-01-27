@@ -206,6 +206,30 @@ describe("FuelPriceRow", () => {
     });
   });
 
+  describe("rupture indicator accessibility", () => {
+    it("has tooltip for additional context", () => {
+      const outOfStockFuel = createMockFuel({ available: false });
+
+      render(<FuelPriceRow fuel={outOfStockFuel} />);
+
+      const ruptureBadge = screen.getByText("Rupture");
+      expect(ruptureBadge).toHaveAttribute(
+        "title",
+        "Carburant en rupture de stock",
+      );
+    });
+
+    it("displays visible Rupture text for screen readers", () => {
+      const outOfStockFuel = createMockFuel({ available: false });
+
+      render(<FuelPriceRow fuel={outOfStockFuel} />);
+
+      // The visible text "Rupture" is readable by screen readers
+      const ruptureBadge = screen.getByText("Rupture");
+      expect(ruptureBadge).toBeInTheDocument();
+    });
+  });
+
   describe("highlighting", () => {
     it("applies highlight styling when isHighlighted is true", () => {
       const fuel = createMockFuel();

@@ -23,7 +23,10 @@ export function FuelPriceRow({ fuel, isHighlighted }: FuelPriceRowProps) {
         </span>
         <span className="text-sm text-gray-700">{fuel.shortName}</span>
         {isOutOfStock && (
-          <span className="px-1.5 py-0.5 text-xs font-medium text-red-700 bg-red-100 rounded">
+          <span
+            className="px-1.5 py-0.5 text-xs font-medium text-red-700 bg-red-100 rounded"
+            title="Carburant en rupture de stock"
+          >
             Rupture
           </span>
         )}

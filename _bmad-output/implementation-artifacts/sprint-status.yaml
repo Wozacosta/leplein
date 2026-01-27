@@ -60,14 +60,14 @@ development_status:
   3-1-location-context-display: done
   3-2-price-update-timestamps: done
   3-3-stale-data-visual-indicator: done
-  3-4-out-of-stock-rupture-indicator: backlog
+  3-4-out-of-stock-rupture-indicator: done
   epic-3-retrospective: optional
 
   # Epic 4: Navigation & Sharing Actions
-  epic-4: backlog
-  4-1-open-directions-in-maps-app: backlog
-  4-2-copy-address-to-clipboard: backlog
-  4-3-share-station-link: backlog
+  epic-4: done
+  4-1-open-directions-in-maps-app: done
+  4-2-copy-address-to-clipboard: done
+  4-3-share-station-link: done
   epic-4-retrospective: optional
 
   # Epic 5: Fallback & Resilience
