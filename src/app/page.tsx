@@ -1,7 +1,7 @@
 "use client";
 
 import { LocationPrompt } from "@/components/location/LocationPrompt";
-import { LocationStatus } from "@/components/location/LocationStatus";
+import { LocationChanger } from "@/components/location/LocationChanger";
 import { FuelFilter } from "@/components/filters/FuelFilter";
 import { StationList } from "@/components/stations/StationList";
 import { OfflineBanner } from "@/components/ui/OfflineBanner";
@@ -29,7 +29,7 @@ export default function Home() {
             Carburant moins cher près de vous
           </p>
           {coordinates && (
-            <LocationStatus lat={coordinates.lat} lng={coordinates.lng} />
+            <LocationChanger lat={coordinates.lat} lng={coordinates.lng} />
           )}
         </div>
       </header>

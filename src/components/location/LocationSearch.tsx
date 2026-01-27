@@ -3,39 +3,7 @@
 import { useState } from "react";
 
 import { useGeolocation } from "@/contexts/GeolocationContext";
-
-interface GeocodingFeature {
-  geometry: {
-    coordinates: [number, number]; // [lng, lat]
-  };
-  properties: {
-    label: string;
-    city?: string;
-    postcode?: string;
-  };
-}
-
-interface GeocodingResponse {
-  features: GeocodingFeature[];
-}
-
-async function geocodeAddress(query: string): Promise<GeocodingFeature | null> {
-  const url = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=1`;
-
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("Erreur lors de la recherche");
-  }
-
-  const data: GeocodingResponse = await response.json();
-
-  if (data.features.length === 0) {
-    return null;
-  }
-
-  return data.features[0];
-}
+import { geocodeAddress } from "@/lib/geocoding";
 
 export function LocationSearch() {
   const [query, setQuery] = useState("");
