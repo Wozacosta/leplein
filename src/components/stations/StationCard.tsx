@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 
+import Image from "next/image";
+
 import { formatDistance } from "@/lib/formatDistance";
+import { getBrandLogo } from "@/lib/getBrandLogo";
 import { isStale } from "@/lib/isStale";
 import { FuelPriceRow } from "./FuelPriceRow";
 import { StaleIndicator } from "@/components/ui/StaleIndicator";
@@ -55,6 +58,10 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
   const selectedFuel = selectedFuelId
     ? station.Fuels.find((f) => f.id === selectedFuelId)
     : station.Fuels[0];
+
+  const brandLogo = getBrandLogo(
+    station.Brand?.shortName || station.Brand?.name,
+  );
 
   // Station is stale if any of its fuels have stale data
   const hasStaleData = station.Fuels.some((fuel) => isStale(fuel.Update.value));
@@ -156,6 +163,15 @@ export function StationCard({ station, selectedFuelId }: StationCardProps) {
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-2">
+            {brandLogo && (
+              <Image
+                src={brandLogo}
+                alt={`${station.Brand?.name || "Brand"} logo`}
+                width={24}
+                height={24}
+                className="object-contain"
+              />
+            )}
             <h3 className="font-semibold text-gray-900">
               {station.Brand?.shortName || station.Brand?.name || station.name}
             </h3>

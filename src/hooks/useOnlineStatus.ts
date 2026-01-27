@@ -1,4 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from "react";
+
+function subscribe(callback: () => void): () => void {
+  window.addEventListener("online", callback);
+  window.addEventListener("offline", callback);
+  return () => {
+    window.removeEventListener("online", callback);
+    window.removeEventListener("offline", callback);
+  };
+}
+
+function getSnapshot(): boolean {
+  return navigator.onLine;
+}
+
+function getServerSnapshot(): boolean {
+  // Always return true on server to prevent hydration mismatch
+  return true;
+}
 
 /**
  * Hook to detect online/offline status.
@@ -6,24 +24,5 @@ import { useState, useEffect } from 'react';
  * Returns true when online, false when offline.
  */
 export function useOnlineStatus(): boolean {
-  const [isOnline, setIsOnline] = useState(() => {
-    // SSR-safe: default to true if navigator is not available
-    if (typeof navigator === 'undefined') return true;
-    return navigator.onLine;
-  });
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  return isOnline;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }
