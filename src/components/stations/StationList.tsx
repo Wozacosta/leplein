@@ -17,12 +17,51 @@ interface StationListProps {
   selectedFuelId?: number;
 }
 
+/**
+ * Banner shown when displaying cached data during an error.
+ */
+function StaleBanner({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div
+      className="flex items-center justify-between gap-2 p-3 mb-4 text-sm rounded-lg bg-amber-50 text-amber-800 border border-amber-200"
+      role="status"
+    >
+      <div className="flex items-center gap-2">
+        <svg
+          className="w-5 h-5 flex-shrink-0"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+          />
+        </svg>
+        <span>Données potentiellement obsolètes</span>
+      </div>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="px-3 py-1 text-xs font-medium text-amber-800 bg-amber-100 rounded hover:bg-amber-200 transition-colors"
+      >
+        Réessayer
+      </button>
+    </div>
+  );
+}
+
 export function StationList({ selectedFuelId }: StationListProps) {
   const { coordinates, status } = useGeolocation();
   const {
     data: stations,
     error,
     isLoading,
+    isStale,
+    errorType,
     mutate,
   } = useStations(coordinates?.lat ?? null, coordinates?.lng ?? null);
   const [sortOrder, setSortOrder] = useLocalStorage<SortOrder>(
@@ -77,10 +116,11 @@ export function StationList({ selectedFuelId }: StationListProps) {
     return <StationListSkeleton count={3} />;
   }
 
-  if (error) {
+  // Error with no cached data - show error message
+  if (error && !stations) {
     return (
       <ErrorMessage
-        message="Impossible de charger les stations"
+        errorType={errorType ?? undefined}
         onRetry={() => mutate()}
       />
     );
@@ -106,6 +146,9 @@ export function StationList({ selectedFuelId }: StationListProps) {
 
   return (
     <div>
+      {/* Stale data banner - show when error occurred but cached data available */}
+      {isStale && <StaleBanner onRetry={() => mutate()} />}
+
       {/* Sort controls */}
       <div className="flex gap-2 mb-4">
         <button

@@ -28,6 +28,16 @@ vi.mock("@/hooks/useLocalStorage", async () => {
 const mockUseGeolocation = vi.mocked(useGeolocation);
 const mockUseStations = vi.mocked(useStations);
 
+// Default useStations return value
+const defaultUseStationsReturn = {
+  data: undefined,
+  error: undefined,
+  isLoading: false,
+  isStale: false,
+  errorType: null,
+  mutate: vi.fn(),
+};
+
 // Helper to create mock station data - uses street address as unique identifier
 function createMockStation(
   id: number,
@@ -101,11 +111,8 @@ describe("StationList", () => {
 
     it("filters stations to only show those with selected fuel available", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithMixedAvailability,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       // Select Gazole (id: 1) - Station at "20 Avenue des Champs" has Gazole unavailable
@@ -126,11 +133,8 @@ describe("StationList", () => {
 
     it("filters stations when SP95 is selected", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithMixedAvailability,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       // Select SP95 (id: 2) - Station at "30 Boulevard Saint-Michel" has SP95 unavailable
@@ -151,11 +155,8 @@ describe("StationList", () => {
 
     it("shows all stations when 'Tous' is selected (undefined fuel)", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithMixedAvailability,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       // No fuel selected (undefined) = show all
@@ -183,11 +184,8 @@ describe("StationList", () => {
       ];
 
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithNoE85,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       // Select E85 (id: 3)
@@ -233,11 +231,8 @@ describe("StationList", () => {
 
     it("sorts stations by price (cheapest first) by default", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithDifferentPrices,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       render(<StationList selectedFuelId={1} />);
@@ -255,11 +250,8 @@ describe("StationList", () => {
 
     it("has 'Moins cher' button active by default", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithDifferentPrices,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       render(<StationList selectedFuelId={1} />);
@@ -287,11 +279,8 @@ describe("StationList", () => {
       ];
 
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithOutOfStock,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       // When filtering by Gazole, only "Available Station" should show
@@ -338,11 +327,8 @@ describe("StationList", () => {
 
     it("sorts stations by distance (nearest first) when distance sort is selected", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithDifferentDistances,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       render(<StationList selectedFuelId={1} />);
@@ -364,11 +350,8 @@ describe("StationList", () => {
 
     it("activates 'Plus proche' button when clicked", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithDifferentDistances,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       render(<StationList selectedFuelId={1} />);
@@ -384,11 +367,8 @@ describe("StationList", () => {
 
     it("can toggle between price and distance sorting", () => {
       mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
         data: stationsWithDifferentDistances,
-        error: undefined,
-        isLoading: false,
-        mutate: vi.fn(),
-        isValidating: false,
       });
 
       render(<StationList selectedFuelId={1} />);
@@ -406,6 +386,113 @@ describe("StationList", () => {
       fireEvent.click(screen.getByText("Moins cher"));
       addresses = screen.getAllByText(/(Far|Near|Medium Distance) Station/);
       expect(addresses[0]).toHaveTextContent("Far Station"); // Cheapest again
+    });
+  });
+
+  describe("error handling", () => {
+    const mockStations: Station[] = [
+      createMockStation(
+        1,
+        "Test Station",
+        [{ id: 1, shortName: "Gazole", available: true, price: 1.8 }],
+        500,
+      ),
+    ];
+
+    beforeEach(() => {
+      mockUseGeolocation.mockReturnValue({
+        coordinates: { lat: 48.8566, lng: 2.3522 },
+        status: "granted",
+        error: null,
+        requestPermission: vi.fn(),
+      });
+    });
+
+    it("shows error message with errorType when error and no data", () => {
+      mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
+        error: new Error("Server error"),
+        errorType: "server",
+      });
+
+      render(<StationList />);
+
+      // Should show error message based on error type
+      expect(
+        screen.getByText(/service est temporairement indisponible/i),
+      ).toBeInTheDocument();
+    });
+
+    it("shows stale banner when error but cached data exists", () => {
+      mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
+        data: mockStations,
+        error: new Error("Network error"),
+        isStale: true,
+        errorType: "network",
+      });
+
+      render(<StationList />);
+
+      // Should show stale data banner
+      expect(
+        screen.getByText(/données potentiellement obsolètes/i),
+      ).toBeInTheDocument();
+
+      // Should still show the station data
+      expect(screen.getByText("Test Station")).toBeInTheDocument();
+    });
+
+    it("shows retry button in stale banner", () => {
+      const mutateFn = vi.fn();
+      mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
+        data: mockStations,
+        error: new Error("Network error"),
+        isStale: true,
+        errorType: "network",
+        mutate: mutateFn,
+      });
+
+      render(<StationList />);
+
+      // Both stale banner and error message use "Réessayer" for consistency
+      const retryButtons = screen.getAllByText("Réessayer");
+      expect(retryButtons.length).toBeGreaterThan(0);
+
+      fireEvent.click(retryButtons[0]);
+      expect(mutateFn).toHaveBeenCalled();
+    });
+
+    it("does not show stale banner when no error", () => {
+      mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
+        data: mockStations,
+        isStale: false,
+      });
+
+      render(<StationList />);
+
+      expect(
+        screen.queryByText(/données potentiellement obsolètes/i),
+      ).not.toBeInTheDocument();
+    });
+
+    it("calls mutate when retry button is clicked in error state", () => {
+      const mutateFn = vi.fn();
+      mockUseStations.mockReturnValue({
+        ...defaultUseStationsReturn,
+        error: new Error("Server error"),
+        errorType: "server",
+        mutate: mutateFn,
+      });
+
+      render(<StationList />);
+
+      const retryButton = screen.getByRole("button", { name: /réessayer/i });
+      fireEvent.click(retryButton);
+
+      expect(mutateFn).toHaveBeenCalled();
     });
   });
 });

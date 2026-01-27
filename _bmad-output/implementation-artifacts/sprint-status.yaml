@@ -73,7 +73,7 @@ development_status:
   # Epic 5: Fallback & Resilience
   epic-5: in-progress
   5-1-manual-location-search: done
-  5-2-api-error-handling-graceful-degradation: backlog
+  5-2-api-error-handling-graceful-degradation: done
   epic-5-retrospective: optional
 
 # Ideas
@@ -81,3 +81,6 @@ development_status:
 #Cache as much as possible-
 #use reactquery, 12 hours ttl
 #cache api calls in the backend? (for some routes maybe?)
+
+# logo for those petrol stations, links directly to https://www.prix-carburants.2aaz.fr/img/brands/ ?
+# but for future proof, make sure to download those logos

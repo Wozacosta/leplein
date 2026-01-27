@@ -1,12 +1,19 @@
 import useSWR from "swr";
 
 import { API_BASE, endpoints } from "@/lib/api";
+import { getErrorType } from "@/lib/errors";
 import { fetcher } from "@/lib/fetcher";
+import { createOnErrorRetry } from "@/lib/retryStrategy";
+import { useOnlineStatus } from "@/hooks/useOnlineStatus";
 
+import type { ErrorType } from "@/lib/errors";
 import type { Station, StationListItem } from "@/types/station";
 
 /** Maximum concurrent detail fetches to avoid rate limiting */
 const MAX_CONCURRENT_FETCHES = 5;
+
+/** Shared retry handler for SWR hooks */
+const onErrorRetry = createOnErrorRetry();
 
 /**
  * Fetches items in batches with concurrency limit.
@@ -28,6 +35,17 @@ async function fetchWithConcurrencyLimit<T, R>(
   return results;
 }
 
+export interface UseStationsResult {
+  data: Station[] | undefined;
+  error: Error | undefined;
+  isLoading: boolean;
+  /** True when showing cached data while an error occurred */
+  isStale: boolean;
+  /** Categorized error type for UI messaging */
+  errorType: ErrorType | null;
+  mutate: () => void;
+}
+
 /**
  * Fetches nearby stations with full details including prices.
  *
@@ -36,8 +54,14 @@ async function fetchWithConcurrencyLimit<T, R>(
  * details in parallel to get the prices.
  *
  * Detail fetches are batched with a concurrency limit to avoid rate limiting.
+ * Includes exponential backoff retry for transient errors.
  */
-export function useStations(lat: number | null, lng: number | null) {
+export function useStations(
+  lat: number | null,
+  lng: number | null,
+): UseStationsResult {
+  const isOnline = useOnlineStatus();
+
   // First, fetch the list of stations around the coordinates
   const listUrl = lat && lng ? endpoints.stationsAround(lat, lng) : null;
 
@@ -48,6 +72,9 @@ export function useStations(lat: number | null, lng: number | null) {
   } = useSWR<StationListItem[]>(listUrl, fetcher, {
     revalidateOnFocus: false,
     dedupingInterval: 60000, // 1 minute
+    onErrorRetry,
+    // Pause revalidation when offline to avoid useless requests
+    isPaused: () => !isOnline,
   });
 
   // Then fetch details for each station to get prices
@@ -103,13 +130,21 @@ export function useStations(lat: number | null, lng: number | null) {
     {
       revalidateOnFocus: false,
       dedupingInterval: 60000, // 1 minute
+      onErrorRetry,
+      // Pause revalidation when offline to avoid useless requests
+      isPaused: () => !isOnline,
     },
   );
 
+  const error = listError || detailsError;
+
   return {
     data: stations,
-    error: listError || detailsError,
+    error,
     isLoading: listLoading || detailsLoading,
+    // Show stale indicator when we have data but also have an error
+    isStale: Boolean(stations && error),
+    errorType: error ? getErrorType(error) : null,
     mutate,
   };
 }

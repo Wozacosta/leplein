@@ -70,9 +70,16 @@ function createWrapper() {
   };
 }
 
+// Mock useOnlineStatus
+vi.mock("@/hooks/useOnlineStatus", () => ({
+  useOnlineStatus: vi.fn(() => true),
+}));
+
 describe("useStations", () => {
   beforeEach(() => {
     vi.resetAllMocks();
+    // Suppress console.warn for cleaner test output
+    vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -183,6 +190,7 @@ describe("useStations", () => {
       Promise.resolve({
         ok: false,
         status: 500,
+        headers: new Headers(),
         json: () => Promise.resolve({ error: "Server error" }),
       }),
     );
@@ -260,9 +268,7 @@ describe("useStations", () => {
   });
 
   it("returns fallback data when detail fetch fails but list succeeds", async () => {
-    const consoleWarnSpy = vi
-      .spyOn(console, "warn")
-      .mockImplementation(() => {});
+    // console.warn is already mocked in beforeEach
 
     global.fetch = vi.fn().mockImplementation((url: string) => {
       if (url.includes("/stations/around/")) {
@@ -276,6 +282,7 @@ describe("useStations", () => {
         return Promise.resolve({
           ok: false,
           status: 500,
+          headers: new Headers(),
           json: () => Promise.resolve({ error: "Internal server error" }),
         });
       }
@@ -300,11 +307,67 @@ describe("useStations", () => {
     });
 
     // Verify warning was logged
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
+    expect(console.warn).toHaveBeenCalledWith(
       expect.stringContaining("Failed to fetch details for station"),
       expect.any(String),
     );
+  });
 
-    consoleWarnSpy.mockRestore();
+  it("returns errorType for categorized errors", async () => {
+    global.fetch = vi.fn().mockImplementation(() =>
+      Promise.resolve({
+        ok: false,
+        status: 500,
+        headers: new Headers(),
+      }),
+    );
+
+    const { result } = renderHook(() => useStations(48.7833, 2.4167), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toBeDefined();
+    });
+
+    expect(result.current.errorType).toBe("server");
+  });
+
+  it("returns isStale: false when no error", async () => {
+    global.fetch = vi.fn().mockImplementation((url: string) => {
+      if (url.includes("/stations/around/")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve([mockStationListItem]),
+        });
+      }
+      if (url.includes("/station/")) {
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve(mockStationDetail),
+        });
+      }
+      return Promise.reject(new Error("Unknown endpoint"));
+    });
+
+    const { result } = renderHook(() => useStations(48.7833, 2.4167), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined();
+    });
+
+    expect(result.current.isStale).toBe(false);
+    expect(result.current.errorType).toBeNull();
+  });
+
+  it("returns errorType: null when no error", () => {
+    const { result } = renderHook(() => useStations(null, null), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.errorType).toBeNull();
+    expect(result.current.isStale).toBe(false);
   });
 });
