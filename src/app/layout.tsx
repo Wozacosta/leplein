@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 
+import { Analytics } from "@vercel/analytics/next";
 import { GeolocationProvider } from "@/contexts/GeolocationContext";
 
 import "./globals.css";
@@ -30,6 +31,7 @@ export default function RootLayout({
     <html lang="fr">
       <body className={`${geist.variable} font-sans antialiased bg-gray-50`}>
         <GeolocationProvider>{children}</GeolocationProvider>
+        <Analytics />
       </body>
     </html>
   );
